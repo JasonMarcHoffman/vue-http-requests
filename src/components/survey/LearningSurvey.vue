@@ -2,7 +2,8 @@
   <section>
     <base-card>
       <h2>How was you learning experience?</h2>
-      <form @submit.prevent="submitSurvey">
+      <!-- remove the .prevent modifier to allow the browser to send data to the backend -->
+      <form @submit="submitSurvey">
         <div class="form-control">
           <label for="name">Your Name</label>
           <input type="text" id="name" name="name" v-model.trim="enteredName" />
@@ -59,6 +60,10 @@ export default {
         userName: this.enteredName,
         rating: this.chosenRating,
       });
+
+      // we added the surveys.json to the url which is firebase specific,
+      // the name can be anything but ensure to add the .json
+      fetch('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json')
 
       this.enteredName = '';
       this.chosenRating = null;
