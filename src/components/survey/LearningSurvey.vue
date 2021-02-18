@@ -3,7 +3,7 @@
     <base-card>
       <h2>How was you learning experience?</h2>
       <!-- remove the .prevent modifier to allow the browser to send data to the backend -->
-      <form @submit="submitSurvey">
+      <form @submit.prevent="submitSurvey">
         <div class="form-control">
           <label for="name">Your Name</label>
           <input type="text" id="name" name="name" v-model.trim="enteredName" />
@@ -39,6 +39,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -47,7 +49,7 @@ export default {
       invalidInput: false,
     };
   },
-  emits: ['survey-submit'],
+  // emits: ['survey-submit'],
   methods: {
     submitSurvey() {
       if (this.enteredName === '' || !this.chosenRating) {
@@ -56,14 +58,37 @@ export default {
       }
       this.invalidInput = false;
 
-      this.$emit('survey-submit', {
-        userName: this.enteredName,
-        rating: this.chosenRating,
-      });
+      // this.$emit('survey-submit', {
+      //   userName: this.enteredName,
+      //   rating: this.chosenRating,
+      // });
 
       // we added the surveys.json to the url which is firebase specific,
       // the name can be anything but ensure to add the .json
-      fetch('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json')
+
+      // fetch('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json', {
+      //     // send data to firebase
+      //     method: 'POST',
+      //     // provide the headers and the body
+      //     headers: {
+      //       'Content-Type': 'application/json'
+      //     },
+      //     // turns javasript object into a string
+      //     body: JSON.stringify({
+      //       name: this.enteredName,
+      //       rating: this.chosenRating
+      //     })
+      //   }
+      // )
+
+      // Installing and usinf axios over the native fetch
+      // 1. npm install axios
+      // 2. add import axios from 'axios';
+      // 3. the below code is much less code
+      axios.post('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json', {
+        name: this.enteredName,
+        rating: this.chosenRating
+      }),
 
       this.enteredName = '';
       this.chosenRating = null;
