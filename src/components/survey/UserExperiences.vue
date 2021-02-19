@@ -5,7 +5,14 @@
       <div>
         <base-button @click="loadExperiences">Load Submitted Experiences</base-button>
       </div>
-      <ul>
+      <!-- adding isLoading while we wait for the server to respond -->
+      <p v-if="isLoading">Loading...</p>
+      <!-- showing a database error -->
+      <p v-else-if="!isLoading && error">{{ error }}</p>
+      <!-- telling the user there is no data at this current time -->
+      <p v-else-if="!loading && (!results || results.length === 0)">No Data as yet</p>
+      <!-- checking if we are not loading and that we are actually getting data back -->
+      <ul v-else-if="!loading && results && results.length > 0">
         <survey-result
           v-for="result in results"
           :key="result.id"
@@ -27,11 +34,15 @@ export default {
   // we want to GET info from the db to display in this component
   data() {
     return {
-      results: []
+      results: [],
+      isLoading: false,
+      error: null
     }
   },
   methods: {
     loadExperiences() {
+      this.isLoading = true;
+      this.error = null;
       let vm = this;
       fetch('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json')
         .then(function(response) {
@@ -40,6 +51,7 @@ export default {
           }
         })
         .then(function(data) {
+          vm.isLoading = false
           // looping through the data received and generating an object for every id in data
           const results = [];
           for (const id in data) {
@@ -50,6 +62,11 @@ export default {
             });
           }
           vm.results = results;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.isLoading = false;
+          this.error = 'Failed to fetch Data - please try again later'
         })
       }
   },
