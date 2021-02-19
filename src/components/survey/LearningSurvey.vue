@@ -29,7 +29,9 @@
         </div>
         <p
           v-if="invalidInput"
-        >One or more input fields are invalid. Please check your provided data.</p>
+          >One or more input fields are invalid. Please check your provided data.
+        </p>
+        <p v-if="error">{{ error }}</p>
         <div>
           <base-button>Submit</base-button>
         </div>
@@ -39,7 +41,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+// import axios from 'axios';
 
 export default {
   data() {
@@ -47,6 +49,7 @@ export default {
       enteredName: '',
       chosenRating: null,
       invalidInput: false,
+      error: null
     };
   },
   // emits: ['survey-submit'],
@@ -66,29 +69,40 @@ export default {
       // we added the surveys.json to the url which is firebase specific,
       // the name can be anything but ensure to add the .json
 
-      // fetch('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json', {
-      //     // send data to firebase
-      //     method: 'POST',
-      //     // provide the headers and the body
-      //     headers: {
-      //       'Content-Type': 'application/json'
-      //     },
-      //     // turns javasript object into a string
-      //     body: JSON.stringify({
-      //       name: this.enteredName,
-      //       rating: this.chosenRating
-      //     })
-      //   }
-      // )
+      this.error = null;
+      fetch('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json', {
+        // send data to firebase
+        method: 'POST',
+        // provide the headers and the body
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // turns javasript object into a string
+        body: JSON.stringify({
+          name: this.enteredName,
+          rating: this.chosenRating
+        }),
+      }).then((response) => {
+        if (response.ok) {
+          // do something
+        } else {
+          // this is an error constructor
+          throw new Error('Could not save Data!')
+        }
+      }).catch((error) => {
+        console.log(error)
+        // this.error = 'Something went wrong please try again later'
+        this.error = error.message;
+      })
 
       // Installing and usinf axios over the native fetch
       // 1. npm install axios
       // 2. add import axios from 'axios';
       // 3. the below code is much less code
-      axios.post('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json', {
-        name: this.enteredName,
-        rating: this.chosenRating
-      }),
+      // axios.post('https://vue-http-demo-4a081-default-rtdb.firebaseio.com/surveys.json', {
+      //   name: this.enteredName,
+      //   rating: this.chosenRating
+      // }),
 
       this.enteredName = '';
       this.chosenRating = null;
